@@ -167,3 +167,163 @@ button.addEventListener("click", () => {
   });
 });
 
+// --------------------------------Mini Erupted Circle------------------------------------------------
+
+
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d");
+
+  let width = window.innerWidth;
+  let height = window.innerHeight;
+  canvas.width = width;
+  canvas.height = height;
+
+  const particles = [];
+
+  class Particle {
+    constructor(x, y) {
+      this.x = x;
+      this.y = y;
+      this.r = Math.random() * 5 + 2; // radius: 2-7px
+      this.color = "#FF6138";
+      this.endX = x + anime.random(-100, 100);
+      this.endY = y + anime.random(-100, 100);
+    }
+
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+      ctx.fillStyle = this.color;
+      ctx.fill();
+    }
+  }
+
+  function animateParticles(x, y) {
+    const burst = [];
+    for (let i = 0; i < 20; i++) {
+      const p = new Particle(x, y);
+      burst.push(p);
+      particles.push(p);
+    }
+
+    anime({
+      targets: burst,
+      x: p => p.endX,
+      y: p => p.endY,
+      r: 0,
+      easing: "easeOutExpo",
+      duration: 1000,
+      update: () => drawAll()
+    });
+  }
+
+  function drawAll() {
+    ctx.clearRect(0, 0, width, height);
+    particles.forEach(p => p.draw());
+  }
+
+  canvas.addEventListener("click", e => {
+    animateParticles(e.clientX, e.clientY);
+  });
+
+  window.addEventListener("resize", () => {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+  });
+
+// ---------------Ripple style cursor-----------------------------------------------------------
+const rippleCanvas = document.getElementById("rippleCanvas");
+const rippleCtx = rippleCanvas.getContext("2d");
+
+let rippleWidth = window.innerWidth;
+let rippleHeight = window.innerHeight;
+rippleCanvas.width = rippleWidth;
+rippleCanvas.height = rippleHeight;
+
+let rippleBgColor = "#1e1e1e";
+const rippleColors = ["#FF6138", "#2980B9", "#FFBE53", "#282741"];
+let rippleColorIndex = 0;
+
+window.addEventListener("resize", () => {
+  rippleWidth = window.innerWidth;
+  rippleHeight = window.innerHeight;
+  rippleCanvas.width = rippleWidth;
+  rippleCanvas.height = rippleHeight;
+});
+
+// Store many ripples if needed
+let rippleCircles = [];
+
+// Circle class
+class RippleCircle {
+  constructor(x, y, color, maxRadius, onComplete) {
+    this.x = x;
+    this.y = y;
+    this.r = 0;
+    this.color = color;
+    this.maxRadius = maxRadius;
+    this.onComplete = onComplete;
+    this.done = false;
+  }
+
+  update() {
+    this.r += 40;
+    if (this.r >= this.maxRadius && !this.done) {
+      this.onComplete();
+      this.done = true;
+    }
+  }
+
+  draw() {
+    rippleCtx.fillStyle = this.color;
+    rippleCtx.beginPath();
+    rippleCtx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+    rippleCtx.fill();
+  }
+
+  isFinished() {
+    return this.r > this.maxRadius + 50;
+  }
+}
+
+function drawRippleBackground() {
+  rippleCtx.fillStyle = rippleBgColor;
+  rippleCtx.fillRect(0, 0, rippleWidth, rippleHeight);
+}
+
+function rippleAnimateLoop() {
+  drawRippleBackground();
+
+  // Update and draw all circles
+  rippleCircles.forEach((circle) => {
+    circle.update();
+    circle.draw();
+  });
+
+  // Remove finished circles
+  rippleCircles = rippleCircles.filter(circle => !circle.isFinished());
+
+  requestAnimationFrame(rippleAnimateLoop);
+}
+
+// 🔥 Allow ripple every time you click
+rippleCanvas.addEventListener("click", (e) => {
+  const nextColor = rippleColors[(++rippleColorIndex) % rippleColors.length];
+  const maxR = Math.sqrt(rippleWidth ** 2 + rippleHeight ** 2);
+
+  const newCircle = new RippleCircle(
+    e.clientX,
+    e.clientY,
+    nextColor,
+    maxR,
+    () => {
+      rippleBgColor = nextColor;
+    }
+  );
+
+  rippleCircles.push(newCircle);
+});
+
+rippleAnimateLoop();

@@ -166,4 +166,19 @@ position: relative;
   .green  { background: #7fba00; top: 0; left: 105px; }
   .blue   { background: #00a4ef; top: 105px; left: 0; }
   .yellow { background: #ffb900; top: 105px; left: 105px; }
+/* ----------------Mini Erupt circle-------------------------------------- */
+#c {
+    background-color: bisque;
+    display: block;
+    width: 100vw;
+    height: 100vh;
+  }
+ /* ----------------Ripple Style Cursor-------------------------------------- */
+
+ #rippleCanvas {
+    width: 100vw;
+    height: 100vh;
+    display: block;
+    background-color: white;
+  }
   
